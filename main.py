@@ -25,13 +25,19 @@ load_dotenv(dotenv_path)
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 dp = Dispatcher()
+bot = Bot(BOT_TOKEN, parse_mode=ParseMode.HTML)
 
-class Form(StatesGroup):
-    name = State()
+class AnonMessage(StatesGroup):
+    choice = State()
+    message = State()
 
 @dp.message(CommandStart())
 async def start_command(message: Message, state: FSMContext):
-    user = db.get(User, telegram_id=message.from_user.id, first=True)
+    with db.session() as session:
+        user = session.query(User).filter(
+            User.telegram_id==message.from_user.id
+        ).first()
+
     if user:
         await message.answer(f"Снова привет, {message.from_user.first_name} 🙂", reply_markup=menu_keyboard())
     else:
@@ -42,22 +48,49 @@ async def start_command(message: Message, state: FSMContext):
             username=message.from_user.username,
             telegram_id=message.from_user.id
         )
-        db.create(new_user)
+        with db.session() as session:
+            session.add(new_user)
+            session.commit()
         await message.answer(f"Привет, {message.from_user.first_name}, вижу тебя впервые, добро пожаловать 🙂", reply_markup=menu_keyboard())
 
 
 @dp.message(F.text=="Отправить анонимное сообщение")
-async def send_anon_message(message: Message, state: FSMContext) -> None:
-    user = db.get(User, telegram_id=message.from_user.id, first=True)
-    await message.answer(f"Выбери, кому хочешь отправить сообщение", reply_markup=generate_users_keyboard(user))
+async def anon_handler(message: Message, state: FSMContext) -> None:
+    await state.set_state(AnonMessage.choice)
+    await message.answer(f"Выбери, кому хочешь отправить сообщение", reply_markup=generate_users_keyboard(message.from_user.id))
 
-@dp.message(F.text=="Назад")
+@dp.message(AnonMessage.choice)
+async def user_choice_handler(message: Message, state: FSMContext) -> None:
+    try:
+        username = message.text.split("@")[1][:-1]
+    except:
+        await message.answer("Что-то пошло не так, выберите снова", reply_markup=generate_users_keyboard(message.from_user.id))
+    else:
+        with db.session() as session:
+            user = session.query(User).filter(User.username==username).first()
+        await state.update_data(user=user)
+        await state.set_state(AnonMessage.message)
+        await message.answer("Что хотите написать ему/ей?")
+
+@dp.message(AnonMessage.message)
+async def create_anon_message_handler(message: Message, state: FSMContext) -> None:
+    anon_text = "Вам сообщение от анонимного пользователя:\n" + message.text
+    data = await state.get_data()
+    user = data.get('user')
+    await bot.send_message(user.telegram_id, anon_text)
+    await message.answer('Сообщение отправлено!', reply_markup=menu_keyboard())
+    await state.clear()
+
+
+
+
+
+@dp.message(F.text=="В главное меню")
 async def not_found(message: Message, state: FSMContext) -> None:
     await state.clear()
     await start_command(message, state)
 
 async def main() -> None:
-    bot = Bot(BOT_TOKEN, parse_mode=ParseMode.HTML)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
