@@ -1,17 +1,20 @@
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, KeyboardButton
-from database.models import User
-from database.utils import Database as db
+from utils.models import User
+from utils.db import Database as db
 
-def menu_keyboard():
+def generate_keyboard_with_menu():
     menu_builder = ReplyKeyboardBuilder()
-    menu_builder.button(text="Отправить анонимное сообщение хуесосу")
+    menu_builder.button(text="Отправить анонимное сообщение")
+    menu_builder.button(text="Генератор комплиментов")
+    menu_builder.adjust(1)
     return menu_builder.as_markup(resize_keyboard=True)
 
-def generate_users_keyboard(requester):
+def generate_keyboard_with_users(sender_telegram_id):
     with db.session() as session:
-        users = session.query(User).filter(User.telegram_id != requester)
+        users = session.query(User).filter(User.telegram_id != sender_telegram_id)
     users_builder = ReplyKeyboardBuilder()
-    users_builder.adjust(3, 2)
     for user in users:
         users_builder.button(text=f'{user.full_name} (@{user.username})')
+    users_builder.button(text='В главное меню')
+    users_builder.adjust(1)
     return users_builder.as_markup()

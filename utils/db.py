@@ -1,8 +1,10 @@
-from database.models import Base
+from utils.models import Base
 from sqlalchemy import create_engine
 import os
 from sqlalchemy.orm import Session
 from contextlib import contextmanager
+from alembic.config import Config
+from alembic import command
 
 
 engine = create_engine("sqlite:///db.sqlite3")
@@ -20,4 +22,9 @@ class Database:
     @classmethod
     def check_exists_db(cls):
         if not os.path.exists('db.sqlite3'):
-            Base.metadata.create_all(bind=engine)
+            # Base.metadata.create_all(bind=engine)
+            alembic_cfg  = Config()
+            alembic_cfg.set_main_option('script_location', "migration/")
+            alembic_cfg.set_main_option('sqlalchemy.url', 'sqlite:///db.sqlite3')
+            command.upgrade(alembic_cfg, 'head')
+            
