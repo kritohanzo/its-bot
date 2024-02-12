@@ -19,6 +19,7 @@ from aiogram.enums import ParseMode
 from utils.keyboards import generate_keyboard_with_menu, generate_keyboard_with_users, generate_back_to_menu_button
 from utils.states import SendAnonymousMessage
 from sqlalchemy import func
+from utils.message_type_sender import send_message_by_type
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -85,12 +86,16 @@ async def choice_user_anonymous(message: Message, state: FSMContext) -> None:
 
 @dp.message(SendAnonymousMessage.generate_message)
 async def generate_anonymous_message(message: Message, state: FSMContext) -> None:
-    anon_text = "Вам сообщение от анонимного пользователя:\n" + message.text
+   
+    # anon_text = "Вам сообщение от анонимного пользователя:\n" + message.text
     data = await state.get_data()
     user = data.get('user')
-    await bot.send_message(user.telegram_id, anon_text)
-    await message.answer('Сообщение отправлено!', reply_markup=generate_keyboard_with_menu())
-    await state.clear()
+    try:
+        await send_message_by_type(bot, user.telegram_id, message, "Вам сообщение от анонимного пользователя:")
+        await message.answer('Сообщение отправлено!', reply_markup=generate_keyboard_with_menu())
+        await state.clear()
+    except Exception as e:
+        message.answer(e, reply_markup=generate_back_to_menu_button())
 
 async def main() -> None:
     await dp.start_polling(bot)
