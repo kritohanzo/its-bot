@@ -16,7 +16,7 @@ from aiogram.types import (
 import os
 import asyncio
 from aiogram.enums import ParseMode
-from utils.keyboards import generate_keyboard_with_menu, generate_keyboard_with_users
+from utils.keyboards import generate_keyboard_with_menu, generate_keyboard_with_users, generate_back_to_menu_button
 from utils.states import SendAnonymousMessage
 from sqlalchemy import func
 
@@ -81,7 +81,7 @@ async def choice_user_anonymous(message: Message, state: FSMContext) -> None:
             user = session.query(User).filter(User.username==username).first()
         await state.update_data(user=user)
         await state.set_state(SendAnonymousMessage.generate_message)
-        await message.answer("Что хотите написать ему/ей?")
+        await message.answer("Что хотите написать ему/ей?", reply_markup=generate_back_to_menu_button())
 
 @dp.message(SendAnonymousMessage.generate_message)
 async def generate_anonymous_message(message: Message, state: FSMContext) -> None:
