@@ -8,7 +8,7 @@ from alembic import command
 from utils.insert_compliments import insert_compliments
 
 
-engine = create_engine("postgresql+psycopg2://valentine_user:valentine_password@localhost:6432/valentine_db")
+engine = create_engine("postgresql+psycopg2://valentine_user:valentine_password@localhost:7432/valentine_db")
 
 
 class Database:
