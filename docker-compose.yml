@@ -10,7 +10,7 @@ services:
     volumes:
     - valentine_pg_data:/var/lib/postgresql/data
     ports:
-      - "6432:6432"
+      - "7432:5432"
   bot:
     build:
       context: .
