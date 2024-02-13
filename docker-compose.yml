@@ -4,14 +4,14 @@ volumes:
   valentine_pg_data:
 
 services:
-  valentine_db:
+  db:
     image: postgres:13.10
     env_file: .env
     volumes:
     - valentine_pg_data:/var/lib/postgresql/data
     ports:
       - "6432:5432"
-  valentine_bot:
+  bot:
     build:
       context: .
       dockerfile: Dockerfile
