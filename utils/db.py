@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from contextlib import contextmanager
 from alembic.config import Config
 from alembic import command
+from utils.insert_compliments import insert_compliments
 
 
 engine = create_engine("sqlite:///db.sqlite3")
@@ -27,4 +28,6 @@ class Database:
             alembic_cfg.set_main_option('script_location', "migration/")
             alembic_cfg.set_main_option('sqlalchemy.url', 'sqlite:///db.sqlite3')
             command.upgrade(alembic_cfg, 'head')
+            with cls.session() as session:
+                insert_compliments(session)
             
