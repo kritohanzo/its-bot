@@ -36,11 +36,10 @@ def upgrade() -> None:
     )
     op.create_table('anonymous_message',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('sender_id', sa.Integer(), nullable=True),
-    sa.Column('recipient_id', sa.Integer(), nullable=True),
-    sa.Column('text', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['recipient_id'], ['user.id'], ),
-    sa.ForeignKeyConstraint(['sender_id'], ['user.id'], ),
+    sa.Column('sender_username', sa.String(), nullable=True),
+    sa.Column('recipient_username', sa.String(), nullable=True),
+    sa.Column('content', sa.String(), nullable=True),
+    sa.Column('type', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

@@ -18,9 +18,10 @@ class User(Base):
 class AnonymousMessage(Base):
     __tablename__ = "anonymous_message"
     id = Column(Integer, primary_key=True)
-    sender_id = Column(ForeignKey("user.id"))
-    recipient_id = Column(ForeignKey("user.id"))
-    text = Column(String)
+    sender_username = Column(String)
+    recipient_username = Column(String)
+    content = Column(String)
+    type = Column(String)
 
 class Compliment(Base):
     __tablename__ = "compliment"
