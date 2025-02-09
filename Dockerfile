@@ -6,7 +6,7 @@ COPY requirements.txt .
 
 RUN apt update && apt install -y libpq-dev gcc
 
-RUN pip install --upgrade pip && pip install -r requirements.txt --no-cache-dir
+RUN pip install uv && uv pip install --system -r requirements.txt && pip cache purge && uv cache clean
 
 COPY . .
 
