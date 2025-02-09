@@ -1,4 +1,5 @@
+# flake8: noqa F401
 from .base import Base
-from .users import User
 from .compliments import Compliment
 from .messages import Message
+from .users import User

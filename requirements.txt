@@ -16,12 +16,20 @@ attrs==23.2.0
     # via aiohttp
 certifi==2024.2.2
     # via aiogram
+cfgv==3.4.0
+    # via pre-commit
+distlib==0.3.9
+    # via virtualenv
+filelock==3.17.0
+    # via virtualenv
 frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
 greenlet==3.0.3
     # via sqlalchemy
+identify==2.6.7
+    # via pre-commit
 idna==3.6
     # via yarl
 magic-filter==1.0.12
@@ -34,6 +42,12 @@ multidict==6.0.5
     # via
     #   aiohttp
     #   yarl
+nodeenv==1.9.1
+    # via pre-commit
+platformdirs==4.3.6
+    # via virtualenv
+pre-commit==4.1.0
+    # via anonymous-valentine-its-bot (pyproject.toml)
 psycopg2==2.9.9
     # via anonymous-valentine-its-bot (pyproject.toml)
 pydantic==2.5.3
@@ -42,6 +56,8 @@ pydantic-core==2.14.6
     # via pydantic
 python-dotenv==1.0.1
     # via anonymous-valentine-its-bot (pyproject.toml)
+pyyaml==6.0.2
+    # via pre-commit
 sqlalchemy==2.0.25
     # via
     #   anonymous-valentine-its-bot (pyproject.toml)
@@ -56,5 +72,7 @@ typing-extensions==4.9.0
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
+virtualenv==20.29.1
+    # via pre-commit
 yarl==1.9.4
     # via aiohttp

@@ -1,9 +1,16 @@
-from aiogram.types import Message as AiogramMessage
 from aiogram import Bot
+from aiogram.types import Message as AiogramMessage
+
 from models.messages import MessageContentTypeChoices, MessagePrivacyTypeChoices
 from models.users import User
 
-async def send_message_by_content_type(bot: Bot, recipient: User, message: AiogramMessage, content_type: MessageContentTypeChoices) -> None:
+
+async def send_message_by_content_type(
+    bot: Bot,
+    recipient: User,
+    message: AiogramMessage,
+    content_type: MessageContentTypeChoices,
+) -> None:
     match content_type:
         case MessageContentTypeChoices.TEXT:
             await bot.send_message(chat_id=recipient.telegram_id, text=message.text)
@@ -23,9 +30,15 @@ async def send_message_by_content_type(bot: Bot, recipient: User, message: Aiogr
         case MessageContentTypeChoices.VOICE:
             await bot.send_voice(chat_id=recipient.telegram_id, voice=message.voice.file_id)
 
-async def send_notification_by_privacy_type(bot: Bot, sender: User, recipient: User, privacy_type: MessagePrivacyTypeChoices):
+
+async def send_notification_by_privacy_type(
+    bot: Bot,
+    sender: User,
+    recipient: User,
+    privacy_type: MessagePrivacyTypeChoices,
+) -> None:
     match privacy_type:
         case MessagePrivacyTypeChoices.ANONYMOUS:
-            await bot.send_message(chat_id=recipient.telegram_id, text="У вас новое анонимное сообщение:")
+            await bot.send_message(chat_id=recipient.telegram_id, text='У вас новое анонимное сообщение:')
         case MessagePrivacyTypeChoices.OPEN:
-            await bot.send_message(chat_id=recipient.telegram_id, text=f"У вас новое сообщение от @{sender.username}:")
+            await bot.send_message(chat_id=recipient.telegram_id, text=f'У вас новое сообщение от @{sender.username}:')

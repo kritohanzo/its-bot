@@ -1,8 +1,10 @@
-from sqlalchemy import String, Column, Integer, DateTime
-from models.base import Base
-from sqlalchemy_utils import ChoiceType
 from datetime import datetime
 from enum import StrEnum
+
+from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy_utils import ChoiceType
+
+from models.base import Base
 from utils.mixins import ChoiceMixin
 
 
@@ -23,7 +25,7 @@ class MessageContentTypeChoices(ChoiceMixin, StrEnum):
 
 
 class Message(Base):
-    __tablename__ = "messages"
+    __tablename__ = 'messages'
     id = Column(Integer, primary_key=True)
     sender_id = Column(Integer)
     recipient_id = Column(Integer)
