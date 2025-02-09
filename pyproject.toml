@@ -1,0 +1,38 @@
+[project]
+name = 'anonymous-valentine-its-bot'
+version = '0.1.0'
+description = 'bot for senging anonymous or open messages to colleagues'
+
+dependencies = [
+    'alembic==1.13.1',
+    'aiogram==3.3.0',
+    'psycopg2==2.9.9',
+    'SQLAlchemy==2.0.25',
+    'SQLAlchemy-Utils==0.41.2',
+]
+
+[tool.setuptools]
+py-modules = []
+
+[tool.isort]
+profile = 'black'
+line_length = 120
+lines_after_imports = 2
+lines_between_sections = 1
+lines_between_types = 0
+force_alphabetical_sort_within_sections = true
+ensure_newline_before_comments = true
+combine_as_imports = true
+combine_star = true
+skip_gitignore = true
+balanced_wrapping = true
+skip = ['.git', '__pycache__', '*.yml.enc']
+
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+
+[tool.flake8]
+max-line-length = 120
+exclude = ['.git', '__pycache__', '*/migrations/*']
+extend-ignore = 'E701'

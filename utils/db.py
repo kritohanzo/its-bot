@@ -1,33 +1,40 @@
-from utils.models import Base
 from sqlalchemy import create_engine
-import os
 from sqlalchemy.orm import Session
 from contextlib import contextmanager
 from alembic.config import Config
 from alembic import command
-from utils.insert_compliments import insert_compliments
+from dotenv import load_dotenv
+from os import getenv
+from sqlalchemy import text
 
 
-engine = create_engine("postgresql+psycopg2://valentine_user:valentine_password@db/valentine_db")
+load_dotenv()
 
+
+DATABASE_URL = f"postgresql+psycopg2://{getenv('POSTGRES_USER')}:{getenv('POSTGRES_PASSWORD')}@{getenv('DB_HOST')}/{getenv('POSTGRES_DB')}"
+SCRIPT_LOCATION = 'migrations'
+ENGINE = create_engine(url=DATABASE_URL)
 
 class Database:
-
     @classmethod
     @contextmanager
     def session(cls):
-        session = Session(engine)
+        session = Session(ENGINE)
         yield session
         session.close()
 
     @classmethod
-    def check_exists_db(cls):
-        if not os.path.exists('db.sqlite3'):
-            # Base.metadata.create_all(bind=engine)
-            alembic_cfg  = Config()
-            alembic_cfg.set_main_option('script_location', "migration/")
-            alembic_cfg.set_main_option('sqlalchemy.url', "postgresql+psycopg2://valentine_user:valentine_password@db/valentine_db")
-            command.upgrade(alembic_cfg, 'head')
-            with cls.session() as session:
-                insert_compliments(session)
-            
+    def initialize_database(cls):
+        alembic_cfg  = Config()
+        alembic_cfg.set_main_option(name='sqlalchemy.url', value=DATABASE_URL)
+        alembic_cfg.set_main_option(name='script_location', value=SCRIPT_LOCATION)
+        command.upgrade(alembic_cfg, 'head')
+    
+    @classmethod
+    def initialize_compliments(cls):
+        with cls.session() as session:
+            with open('common/compliments.sql', 'r') as file:
+                for line in file.readlines():
+                    query = text(line)
+                    session.execute(query)
+            session.commit()

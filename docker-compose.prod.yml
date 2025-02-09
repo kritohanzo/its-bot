@@ -1,0 +1,18 @@
+version: '3.3'
+
+services:
+  postgres:
+    container_name: anonymous-valentine-postgres
+    image: postgres:13.10
+    env_file: .environment
+    ports:
+      - 5432:5432
+
+  bot:
+    container_name: anonymous-valentine-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .environment
+    depends_on:
+      - postgres

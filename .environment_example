@@ -1,0 +1,8 @@
+BOT_TOKEN = "123"
+
+POSTGRES_USER = "anonymous_valentine_user"
+POSTGRES_PASSWORD = "anonymous_valentine_password"
+POSTGRES_DB = "anonymous_valentine_db"
+
+DB_HOST = "127.0.0.1"
+DB_PORT = 5432
