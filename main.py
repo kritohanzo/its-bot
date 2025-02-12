@@ -14,9 +14,9 @@ from models.messages import Message, MessageContentTypeChoices, MessagePrivacyTy
 from models.users import User
 from states.messages import SendMessageState
 from utils.db import Database as db
+from utils.finders import find_content_type_from_message
 from utils.keyboards import (
     back_to_menu_keyboard,
-    content_types_keyboard,
     menu_keyboard,
     privacy_types_keyboard,
     recipients_keyboard,
@@ -97,42 +97,50 @@ async def choice_recipient(message: AiogramMessage, state: FSMContext) -> None:
             reply_markup=recipients_keyboard(sender=message.from_user),
         )
 
-    await message.answer(text='Выберите тип контента отправляемого сообщения', reply_markup=content_types_keyboard())
-    await state.update_data(recipient=recipient)
-    await state.set_state(SendMessageState.choice_content_type)
-
-
-@dp.message(SendMessageState.choice_content_type, F.text.in_(MessageContentTypeChoices.values()))
-async def choice_content_type(message: AiogramMessage, state: FSMContext) -> None:
     await message.answer(
         text='Введите или прикрепите содержание отправляемого сообщения',
         reply_markup=back_to_menu_keyboard(),
     )
-    await state.update_data(content_type=MessageContentTypeChoices.from_value(value=message.text))
+
+    await state.update_data(recipient=recipient)
     await state.set_state(SendMessageState.choice_content)
 
 
 @dp.message(SendMessageState.choice_content)
 async def choice_content(message: AiogramMessage, state: FSMContext) -> None:
+    content_type: MessageContentTypeChoices = await find_content_type_from_message(message=message)
+
+    if not content_type:
+        return await message.answer(text='Ошибка при определении типа контента сообщения, попробуйте что-то другое')
+
     collected_data = await state.get_data()
 
-    content_type: MessageContentTypeChoices = collected_data.get('content_type')
     privacy_type: MessagePrivacyTypeChoices = collected_data.get('privacy_type')
     recipient: User = collected_data.get('recipient')
 
-    if not getattr(message, collected_data.get('content_type').name.lower()):
-        return await message.answer(
-            text='Выбранный тип контента не совпадает с отправляемым',
-            reply_markup=back_to_menu_keyboard(),
+    try:
+        await send_notification_by_privacy_type(
+            bot=bot,
+            sender=message.from_user,
+            recipient=recipient,
+            privacy_type=privacy_type,
         )
+    except Exception as exc:
+        await message.answer(
+            text='Получатель запретил сообщения от бота, отправить сообщение не получится',
+            reply_markup=menu_keyboard(),
+        )
+        return await state.clear()
 
-    await send_notification_by_privacy_type(
-        bot=bot, sender=message.from_user, recipient=recipient, privacy_type=privacy_type
+    await send_message_by_content_type(
+        bot=bot,
+        recipient=recipient,
+        message=message,
+        content_type=content_type,
     )
-    await send_message_by_content_type(bot=bot, recipient=recipient, message=message, content_type=content_type)
 
     with db.session() as session:
-        sender: User = session.query(User).filter(User.telegram_id == message.from_user.id).first()
+        sender = session.query(User).filter(User.telegram_id == message.from_user.id).first()
 
         new_message = Message(
             sender_id=sender.id,
