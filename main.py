@@ -130,7 +130,7 @@ async def choice_content(message: AiogramMessage, state: FSMContext) -> None:
         return await state.clear()
 
     except TelegramBadRequest as _:
-        await message.answer(
+        return await message.answer(
             text='Получатель запретил получение данного типа контента, попробуйте отправить что-то другое'
         )
 
