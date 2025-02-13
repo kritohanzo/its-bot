@@ -39,6 +39,8 @@ async def send_notification_by_privacy_type(
 ) -> None:
     match privacy_type:
         case MessagePrivacyTypeChoices.ANONYMOUS:
-            await bot.send_message(chat_id=recipient.telegram_id, text='У вас новое анонимное сообщение:')
+            await bot.send_message(chat_id=recipient.telegram_id, text='↑ Вам пришло новое анонимное сообщение ↑')
         case MessagePrivacyTypeChoices.OPEN:
-            await bot.send_message(chat_id=recipient.telegram_id, text=f'У вас новое сообщение от @{sender.username}:')
+            await bot.send_message(
+                chat_id=recipient.telegram_id, text=f'↑ Вам пришло новое сообщение от @{sender.username} ↑'
+            )

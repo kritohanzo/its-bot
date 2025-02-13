@@ -1,12 +1,17 @@
 version: '3.3'
 
+volumes:
+  anonymous_valentine_postgres_data:
+
 services:
   postgres:
     container_name: anonymous-valentine-postgres
     image: postgres:13.10
     env_file: .environment
     ports:
-      - 5432:5432
+      - 6433:5432
+    volumes:
+      - anonymous_valentine_postgres_data:/var/lib/postgresql/data
 
   bot:
     container_name: anonymous-valentine-bot

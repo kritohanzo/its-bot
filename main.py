@@ -4,6 +4,7 @@ import re
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.enums import ParseMode
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message as AiogramMessage
 from dotenv import load_dotenv
@@ -15,12 +16,7 @@ from models.users import User
 from states.messages import SendMessageState
 from utils.db import Database as db
 from utils.finders import find_content_type_from_message
-from utils.keyboards import (
-    back_to_menu_keyboard,
-    menu_keyboard,
-    privacy_types_keyboard,
-    recipients_keyboard,
-)
+from utils.keyboards import back_to_menu_keyboard, menu_keyboard, privacy_types_keyboard, recipients_keyboard
 from utils.senders import send_message_by_content_type, send_notification_by_privacy_type
 
 
@@ -119,24 +115,30 @@ async def choice_content(message: AiogramMessage, state: FSMContext) -> None:
     recipient: User = collected_data.get('recipient')
 
     try:
-        await send_notification_by_privacy_type(
+        await send_message_by_content_type(
             bot=bot,
-            sender=message.from_user,
             recipient=recipient,
-            privacy_type=privacy_type,
+            message=message,
+            content_type=content_type,
         )
-    except Exception as exc:
+
+    except TelegramForbiddenError as _:
         await message.answer(
-            text='Получатель запретил сообщения от бота, отправить сообщение не получится',
+            text='Получатель запретил сообщения от бота, отправить ему сообщение не получится',
             reply_markup=menu_keyboard(),
         )
         return await state.clear()
 
-    await send_message_by_content_type(
+    except TelegramBadRequest as _:
+        await message.answer(
+            text='Получатель запретил получение данного типа контента, попробуйте отправить что-то другое'
+        )
+
+    await send_notification_by_privacy_type(
         bot=bot,
+        sender=message.from_user,
         recipient=recipient,
-        message=message,
-        content_type=content_type,
+        privacy_type=privacy_type,
     )
 
     with db.session() as session:
