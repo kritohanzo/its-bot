@@ -48,14 +48,20 @@ platformdirs==4.3.6
     # via virtualenv
 pre-commit==4.1.0
     # via anonymous-valentine-its-bot (pyproject.toml)
-psycopg2==2.9.9
+psycopg2-binary
     # via anonymous-valentine-its-bot (pyproject.toml)
 pydantic==2.5.3
-    # via aiogram
+    # via
+    #   aiogram
+    #   pydantic-settings
 pydantic-core==2.14.6
     # via pydantic
-python-dotenv==1.0.1
+pydantic-settings==2.2.1
     # via anonymous-valentine-its-bot (pyproject.toml)
+python-dotenv==1.0.1
+    # via
+    #   anonymous-valentine-its-bot (pyproject.toml)
+    #   pydantic-settings
 pyyaml==6.0.2
     # via pre-commit
 sqlalchemy==2.0.25

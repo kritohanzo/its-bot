@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN apt update && apt install -y libpq-dev gcc
+RUN apt update && apt install -y libpq-dev gcc git
 
 RUN pip install uv && uv pip install --system -r requirements.txt && pip cache purge && uv cache clean
 
