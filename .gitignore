@@ -78,4 +78,4 @@ cython_debug/
 .idea/*
 storage/
 .environment
-.precomcache
+.precomcache/
