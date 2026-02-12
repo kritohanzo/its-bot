@@ -19,7 +19,7 @@ DATABASE_URL = (
 
 SCRIPT_LOCATION = 'migrations'
 
-ENGINE = create_engine(url=DATABASE_URL)
+ENGINE = create_engine(url=DATABASE_URL, pool_size=100, max_overflow=0)
 
 
 class Database:
