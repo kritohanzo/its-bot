@@ -48,7 +48,7 @@ platformdirs==4.3.6
     # via virtualenv
 pre-commit==4.1.0
     # via anonymous-valentine-its-bot (pyproject.toml)
-psycopg2-binary
+psycopg2==2.9.9
     # via anonymous-valentine-its-bot (pyproject.toml)
 pydantic==2.5.3
     # via
