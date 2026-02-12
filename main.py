@@ -50,7 +50,10 @@ async def main_menu(message: AiogramMessage, state: FSMContext) -> None:
 
 @dp.message(F.text == 'Генератор комплиментов')
 async def generate_compliment(message: AiogramMessage, state: FSMContext) -> None:
-    await message.answer(text='Отправьте примерное описание генерируемого комплимента')
+    await message.answer(
+        text='Отправьте примерное описание генерируемого комплимента',
+        reply_markup=back_to_menu_keyboard(),
+    )
     await state.set_state(GenerateComplimentState.input_prompt)
 
 
