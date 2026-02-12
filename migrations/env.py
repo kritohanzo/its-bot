@@ -17,7 +17,12 @@ if config.config_file_name is not None:
 
 config.set_main_option(
     name='sqlalchemy.url',
-    value=f"postgresql+psycopg2://{getenv('POSTGRES_USER')}:{getenv('POSTGRES_PASSWORD')}@{getenv('DB_HOST')}/{getenv('POSTGRES_DB')}",
+    value=(
+        f"postgresql+psycopg2://"
+        f"{getenv('POSTGRES_USER')}:{getenv('POSTGRES_PASSWORD')}@"
+        f"{getenv('POSTGRES_HOST')}:{getenv('POSTGRES_PORT')}/"
+        f"{getenv('POSTGRES_DB')}"
+    ),
 )
 
 target_metadata = Base.metadata

@@ -8,15 +8,14 @@ from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message as AiogramMessage
 from dotenv import load_dotenv
-from sqlalchemy import func
 
-from models.compliments import Compliment
 from models.messages import Message, MessageContentTypeChoices, MessagePrivacyTypeChoices
 from models.users import User
-from states.messages import SendMessageState
+from states.messages import GenerateComplimentState, SendMessageState
 from utils.db import Database as db
 from utils.finders import find_content_type_from_message
 from utils.keyboards import back_to_menu_keyboard, menu_keyboard, privacy_types_keyboard, recipients_keyboard
+from utils.mistral import MistralClient
 from utils.senders import send_message_by_content_type, send_notification_by_privacy_type
 
 
@@ -51,10 +50,15 @@ async def main_menu(message: AiogramMessage, state: FSMContext) -> None:
 
 @dp.message(F.text == 'Генератор комплиментов')
 async def generate_compliment(message: AiogramMessage, state: FSMContext) -> None:
-    with db.session() as session:
-        compliment = session.query(Compliment).order_by(func.random()).first()
+    await message.answer(text='Отправьте примерное описание генерируемого комплимента')
+    await state.set_state(GenerateComplimentState.input_prompt)
 
-    await message.answer(text=compliment.text, reply_markup=menu_keyboard())
+
+@dp.message(GenerateComplimentState.input_prompt)
+async def input_prompt(message: AiogramMessage, state: FSMContext) -> None:
+    compliment = await MistralClient().get_compliment(prompt=message.text)
+    await message.answer(text=str(compliment), reply_markup=menu_keyboard())
+    await state.clear()
 
 
 @dp.message(F.text == 'Отправить сообщение')
@@ -122,14 +126,14 @@ async def choice_content(message: AiogramMessage, state: FSMContext) -> None:
             content_type=content_type,
         )
 
-    except TelegramForbiddenError as _:
+    except TelegramForbiddenError:
         await message.answer(
             text='Получатель запретил сообщения от бота, отправить ему сообщение не получится',
             reply_markup=menu_keyboard(),
         )
         return await state.clear()
 
-    except TelegramBadRequest as _:
+    except TelegramBadRequest:
         return await message.answer(
             text='Получатель запретил получение данного типа контента, попробуйте отправить что-то другое'
         )
@@ -164,5 +168,4 @@ async def main() -> None:
 
 if __name__ == '__main__':
     db.initialize_database()
-    db.initialize_compliments()
     asyncio.run(main())

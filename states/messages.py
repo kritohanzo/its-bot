@@ -6,3 +6,7 @@ class SendMessageState(StatesGroup):
     choice_recipient = State()
     choice_content_type = State()
     choice_content = State()
+
+
+class GenerateComplimentState(StatesGroup):
+    input_prompt = State()

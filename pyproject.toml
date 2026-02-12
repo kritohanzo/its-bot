@@ -11,6 +11,7 @@ dependencies = [
     'SQLAlchemy==2.0.25',
     'SQLAlchemy-Utils==0.41.2',
     'pre-commit',
+    "pydantic-settings",
 ]
 
 [tool.setuptools]
