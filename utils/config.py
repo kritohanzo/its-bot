@@ -7,6 +7,8 @@ class Config(BaseSettings):
     BOT_TOKEN: str
     MISTRAL_TOKEN: str
 
+    ADMIN_TELEGRAM_ID: int
+
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str

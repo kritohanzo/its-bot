@@ -1,9 +1,10 @@
 BOT_TOKEN = "123"
+MISTRAL_TOKEN = "abcdefg"
+
+ADMIN_TELEGRAM_ID = 123456789
 
 POSTGRES_USER = "anonymous_valentine_user"
 POSTGRES_PASSWORD = "anonymous_valentine_password"
 POSTGRES_HOST = "127.0.0.1"
 POSTGRES_PORT = 5432
 POSTGRES_DB = "anonymous_valentine_db"
-
-MISTRAL_TOKEN = "abcdefg"

@@ -36,13 +36,8 @@ class MistralClient:
                 json=body,
             )
 
-        try:
-            response.raise_for_status()
-        except Exception as exc:
-            return f'Интеграция с Mistral API сломалась: {exc}'
-
+        response.raise_for_status()
         data = await response.json()
-
         return data['choices'][0]['message']['content']
 
     async def _build_body(self, prompt: str) -> dict[str, str | int | list[dict[str, str]]]:

@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from models.messages import Message, MessageContentTypeChoices, MessagePrivacyTypeChoices
 from models.users import User
 from states.messages import GenerateComplimentState, SendMessageState
+from utils.config import config
 from utils.db import Database as db
 from utils.finders import find_content_type_from_message
 from utils.keyboards import back_to_menu_keyboard, menu_keyboard, privacy_types_keyboard, recipients_keyboard
@@ -57,11 +58,35 @@ async def generate_compliment(message: AiogramMessage, state: FSMContext) -> Non
     await state.set_state(GenerateComplimentState.input_prompt)
 
 
+# TODO: прибрать говно жоско
 @dp.message(GenerateComplimentState.input_prompt)
 async def input_prompt(message: AiogramMessage, state: FSMContext) -> None:
-    compliment = await MistralClient().get_compliment(prompt=message.text)
-    await message.answer(text=str(compliment), reply_markup=menu_keyboard())
-    await state.clear()
+    content_type = await find_content_type_from_message(message=message)
+
+    if content_type != MessageContentTypeChoices.TEXT:
+        return await message.answer(
+            text='Для генерации комплиментов принимается только текстовое сообщение',
+            reply_markup=back_to_menu_keyboard(),
+        )
+
+    if len(message.text) > 1000:
+        return await message.answer(
+            text='Описание комплимента не может быть больше 1000 символов',
+            reply_markup=back_to_menu_keyboard(),
+        )
+
+    try:
+        compliment = await MistralClient().get_compliment(prompt=message.text)
+    except Exception as exception:
+        await bot.send_message(chat_id=config.ADMIN_TELEGRAM_ID, text=f'Mistral dead: {str(exception)}')
+        await message.answer(
+            text='Интеграция с супер-пупер крутым и умным нейро-ботом умерла, извините',
+            reply_markup=menu_keyboard(),
+        )
+    else:
+        await message.answer(text=str(compliment), reply_markup=menu_keyboard())
+    finally:
+        await state.clear()
 
 
 @dp.message(F.text == 'Отправить сообщение')
